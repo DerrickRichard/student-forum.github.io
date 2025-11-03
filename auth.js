@@ -1,4 +1,4 @@
-const AUTH_URL = "https://script.google.com/a/macros/pothisd.us/s/AKfycbzSvo5n0ELksg-xVljMX8xyDrY2JrWtXgVqZ1BSC0Mkg4snFWappX3A-CZShfVCM3wekQ/exec"; // Replace with your deployed Apps Script URL
+const AUTH_URL = "https://script.google.com/a/macros/pothisd.us/s/AKfycbzSvo5n0ELksg-xVljMX8xyDrY2JrWtXgVqZ1BSC0Mkg4snFWappX3A-CZShfVCM3wekQ/exec";
 
 function registerUser() {
   const username = document.getElementById("register-username").value.trim();
@@ -17,14 +17,24 @@ function registerUser() {
 
   fetch(AUTH_URL, {
     method: "POST",
-    body: JSON.stringify(payload),
     headers: {
       "Content-Type": "application/json"
-    }
+    },
+    body: JSON.stringify(payload),
+    credentials: "include"
   })
-    .then(res => res.text())
+    .then(res => {
+      if (!res.ok) {
+        throw new Error(`Server responded with status ${res.status}`);
+      }
+      return res.text();
+    })
     .then(response => {
       showMessage(response);
+    })
+    .catch(err => {
+      console.error("Registration error:", err);
+      showMessage("Registration failed. Make sure you're signed in with your school account.");
     });
 }
 
@@ -45,19 +55,29 @@ function loginUser() {
 
   fetch(AUTH_URL, {
     method: "POST",
-    body: JSON.stringify(payload),
     headers: {
       "Content-Type": "application/json"
-    }
+    },
+    body: JSON.stringify(payload),
+    credentials: "include"
   })
-    .then(res => res.text())
+    .then(res => {
+      if (!res.ok) {
+        throw new Error(`Server responded with status ${res.status}`);
+      }
+      return res.text();
+    })
     .then(response => {
       if (response === "Login successful") {
         localStorage.setItem("forumUser", username);
-        window.location.href = "index.html"; // Redirect to forum
+        window.location.href = "index.html";
       } else {
         showMessage(response);
       }
+    })
+    .catch(err => {
+      console.error("Login error:", err);
+      showMessage("Login failed. Make sure you're signed in with your school account.");
     });
 }
 
